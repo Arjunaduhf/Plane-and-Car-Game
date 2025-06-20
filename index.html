@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plane & Car Guessing Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    color: #003366;
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+    text-align: center;
+  }
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+  .hint {
+    font-style: italic;
+    color: #004d99;
+    margin: 1rem 0;
+  }
+  input[type="text"] {
+    width: 80%;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  button {
+    margin: 1rem 0.5rem 0 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 3px;
+  }
+  button.switch {
+    background: #28a745;
+  }
+  .result {
+    margin-top: 1rem;
+    font-weight: bold;
+    min-height: 1.5em;
+  }
+  .score {
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<h1 id="game-title">Guess the Plane</h1>
+<div class="score" id="score">Score: 0</div>
+<div class="hint" id="hint">Loading hint...</div>
+
+<input type="text" id="guess-input" placeholder="Type your guess here" />
+<br />
+<button id="submit-btn">Submit Guess</button>
+<button id="switch-btn" class="switch">Switch to Cars</button>
+
+<div class="result" id="result"></div>
+
+<script>
+  const planes = [
+    {name: "Boeing 707", hint: "An early long-range narrow-body jet from the 1950s."},
+    {name: "Boeing 717", hint: "A small, short-haul jet originally developed by McDonnell Douglas."},
+    {name: "Boeing 727", hint: "A trijet designed for short and medium-haul flights in the 1960s."},
+    {name: "Boeing 737", hint: "The world's most popular narrow-body commercial jet."},
+    {name: "Boeing 747", hint: "A jumbo jet with an upper deck, known as the 'Queen of the Skies'."},
+    {name: "Boeing 757", hint: "A narrow-body jet known for its powerful takeoff performance."},
+    {name: "Boeing 767", hint: "A wide-body twin-engine jet often used for international routes."},
+    {name: "Boeing 777", hint: "A twin-engine wide-body jet used for long-haul flights."},
+    {name: "Boeing 787 Dreamliner", hint: "A fuel-efficient wide-body aircraft introduced in the 2010s."},
+    {name: "Airbus A300", hint: "The first twin-engine wide-body commercial jet from Airbus."},
+    {name: "Airbus A310", hint: "A shorter version of the A300, popular in the 80s and 90s."},
+    {name: "Airbus A318", hint: "The smallest member of the A320 family."},
+    {name: "Airbus A319", hint: "A shortened A320 variant used on shorter routes."},
+    {name: "Airbus A320", hint: "A popular narrow-body plane with fly-by-wire controls."},
+    {name: "Airbus A321", hint: "The largest standard version of the A320 family."},
+    {name: "Airbus A330", hint: "A wide-body twinjet used for medium to long-haul flights."},
+    {name: "Airbus A340", hint: "A four-engine wide-body aircraft now mostly retired."},
+    {name: "Airbus A350", hint: "A modern, fuel-efficient wide-body jet competing with the 787."},
+    {name: "Airbus A380", hint: "The world's largest passenger aircraft, double-decker."}
+  ];
+
+  const cars = [
+    {name: "Ford Mustang", hint: "An iconic American muscle car introduced in the 1960s."},
+    {name: "Chevrolet Camaro", hint: "A classic competitor to the Ford Mustang with sporty design."},
+    {name: "Tesla Model S", hint: "A luxury electric sedan known for its autopilot feature."},
+    {name: "Porsche 911", hint: "A German sports car famous for its distinctive shape and performance."},
+    {name: "Honda Civic", hint: "A reliable compact car popular worldwide for its efficiency."},
+    {name: "Toyota Corolla", hint: "One of the best-selling cars globally, known for durability."},
+    {name: "Lamborghini Aventador", hint: "A flashy Italian supercar with a V12 engine."},
+    {name: "Bugatti Veyron", hint: "One of the fastest production cars, with extreme horsepower."},
+    {name: "Jeep Wrangler", hint: "A rugged SUV designed for off-road adventures."},
+    {name: "BMW M3", hint: "A high-performance version of a popular German sedan."},
+    {name: "Mercedes-Benz S-Class", hint: "A luxury sedan packed with advanced technology."},
+    {name: "Audi A4", hint: "A stylish German compact executive car with quattro AWD."},
+    {name: "Nissan GT-R", hint: "A Japanese sports car known as 'Godzilla' for its power."},
+    {name: "Mazda MX-5 Miata", hint: "A lightweight, fun-to-drive convertible roadster."},
+    {name: "Subaru Impreza", hint: "A reliable compact car famous for its AWD system."}
+  ];
+
+  let currentGame = 'planes';
+  let currentItem;
+  let score = 0;
+
+  const titleEl = document.getElementById('game-title');
+  const scoreEl = document.getElementById('score');
+  const hintEl = document.getElementById('hint');
+  const guessInput = document.getElementById('guess-input');
+  const submitBtn = document.getElementById('submit-btn');
+  const switchBtn = document.getElementById('switch-btn');
+  const resultEl = document.getElementById('result');
+
+  function pickRandomItem() {
+    const list = currentGame === 'planes' ? planes : cars;
+    currentItem = list[Math.floor(Math.random() * list.length)];
+  }
+
+  function updateUI() {
+    titleEl.textContent = currentGame === 'planes' ? 'Guess the Plane' : 'Guess the Car';
+    scoreEl.textContent = `Score: ${score}`;
+    hintEl.textContent = `Hint: ${currentItem.hint}`;
+    guessInput.value = '';
+    resultEl.textContent = '';
+  }
+
+  function checkGuess() {
+    const guess = guessInput.value.trim().toLowerCase();
+    const correct = currentItem.name.toLowerCase();
+
+    if (guess === correct) {
+      score++;
+      resultEl.textContent = `✅ Correct! It was ${currentItem.name}.`;
+      nextRound();
+    } else {
+      resultEl.textContent = `❌ Wrong. Try again!`;
+    }
+    scoreEl.textContent = `Score: ${score}`;
+  }
+
+  function nextRound() {
+    pickRandomItem();
+    updateUI();
+  }
+
+  submitBtn.addEventListener('click', () => {
+    if (!guessInput.value.trim()) {
+      resultEl.textContent = 'Please enter a guess!';
+      return;
+    }
+    checkGuess();
+  });
+
+  switchBtn.addEventListener('click', () => {
+    currentGame = currentGame === 'planes' ? 'cars' : 'planes';
+    score = 0;
+    pickRandomItem();
+    updateUI();
+  });
+
+  // Initialize game
+  pickRandomItem();
+  updateUI();
+</script>
+
+</body>
+</html>
